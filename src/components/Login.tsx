@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Login: React.FC<{ onLogin: (email: string) => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -8,8 +9,12 @@ const Login: React.FC<{ onLogin: (email: string) => void }> = ({ onLogin }) => {
 
   const handleLogin = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      onLogin(userCredential.user.email!);
+      const response = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+      });
+      onLogin(email);
+      console.log(response.data);
     } catch (error) {
       console.error('Error logging in:', error);
     }

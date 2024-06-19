@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -8,8 +9,11 @@ const SignUp: React.FC = () => {
 
   const handleSignUp = async () => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('User signed up:', userCredential.user.email);
+      const response = await axios.post(`${API_URL}/signup`, {
+        email,
+        password,
+      });
+      console.log(response.data);
     } catch (error) {
       console.error('Error signing up:', error);
     }
