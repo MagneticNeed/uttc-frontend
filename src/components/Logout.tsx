@@ -2,7 +2,7 @@ import React from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 
-const Logout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+const Logout: React.FC<{ onLogout: () => void; className?: string }> = ({ onLogout, className }) => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -13,7 +13,9 @@ const Logout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   };
 
   return (
-    <button onClick={handleLogout}>Log Out</button>
+    <button className={className} onClick={handleLogout}>
+      Log Out
+    </button>
   );
 };
 
