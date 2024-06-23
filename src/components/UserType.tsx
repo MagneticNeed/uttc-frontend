@@ -1,4 +1,4 @@
-// export const getData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+export const getData = JSON.parse(sessionStorage.getItem('userData') || '{}');
 
 // export type UserType = {
 //     id: string;
@@ -13,11 +13,11 @@ export type UserType = {
     username: string;
   };
   
-  export const getData = (): UserType => {
-    const userData = sessionStorage.getItem('userData');
-    if (userData) {
-      return JSON.parse(userData) as UserType;
-    }
-    throw new Error('User data not found in sessionStorage');
-  };
+// export const getData = (): UserType => {
+//   const userData = sessionStorage.getItem('userData');
+//   if (userData) {
+//     return JSON.parse(userData) as UserType;
+//   }
+//   throw new Error('User data not found in sessionStorage');
+// };
   

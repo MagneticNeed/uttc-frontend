@@ -17,7 +17,7 @@ const PostForm: React.FC<PostFormProps> = ({ onPost }) => {
     }
 
     try {
-      const userData: UserType = getData();
+      const userData: UserType = getData;
       console.log('Creating post:', content, userData.id);
       await createTweet({ content, posted_by: userData.id });
       setContent('');
