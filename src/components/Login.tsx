@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import { UserType } from './UserType';
 
-const Login: React.FC<{ onLogin: (email: string) => void }> = ({ onLogin }) => {
+const Login: React.FC<{ onLogin: (user: UserType) => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -10,8 +11,17 @@ const Login: React.FC<{ onLogin: (email: string) => void }> = ({ onLogin }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      onLogin(user.email || '');
-      console.log('User logged in:', user);
+      const userData: UserType = {
+        id: user.uid,
+        email: user.email || '',
+        username: user.displayName || ''
+      };
+
+      // ユーザー情報を sessionStorage に保存
+      sessionStorage.setItem('userData', JSON.stringify(userData));
+
+      onLogin(userData);
+      console.log('User logged in:', userData);
     } catch (error) {
       console.error('Error logging in:', error);
     }

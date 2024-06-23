@@ -4,21 +4,28 @@ import Login from './components/Login';
 import Logout from './components/Logout';
 import Home from './components/Home';
 import Search from './components/Search';
-import User from './components/User';
+import User from './components/Profile';
 import PostForm from './components/PostForm';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import './App.css';
 
+interface User {
+  email: string;
+  username: string;
+}
+
 const App: React.FC = () => {
-  const [user, setUser] = useState<null | string>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isPostPopupOpen, setPostPopupOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user.email || null);
+        // Fetch additional user info (e.g., username) from backend if needed
+        // Here, we assume that the username is already stored in user.displayName
+        setUser({ email: user.email || '', username: user.displayName || '' });
       } else {
         setUser(null);
       }
@@ -49,13 +56,13 @@ const App: React.FC = () => {
       <main className={!user ? "login-signup-container" : ""}>
         {!user ? (
           <div className="login-signup-container">
-            <SignUp />
-            <Login onLogin={(email) => setUser(email)} />
+            <SignUp onSignUp={(user) => setUser(user)} />
+            <Login onLogin={(user) => setUser(user)} />
           </div>
         ) : (
           <>
             {renderContent()}
-            {user && <p>Logged in as: {user}</p>}
+            {user && <p>Logged in as: {user.email}</p>}
           </>
         )}
       </main>
@@ -86,7 +93,7 @@ const App: React.FC = () => {
           )}
         </footer>
       )}
-      {isPostPopupOpen && (
+      {isPostPopupOpen && user && (
         <div className="post-popup">
           <div className="post-popup-content">
             <button className="close-button" onClick={() => setPostPopupOpen(false)}>×</button>

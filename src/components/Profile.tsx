@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUsers, fetchTweets, fetchReplies, fetchLikes } from '../api';
+import { fetchUserById, fetchTweets, fetchReplies, fetchLikes } from '../api';
+import { TweetType, ReplyType } from './PostType';
 
-const User: React.FC = () => {
+const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [tweets, setTweets] = useState<any[]>([]);
   const [replies, setReplies] = useState<any[]>([]);
@@ -11,15 +12,16 @@ const User: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const responseUsers = await fetchUsers();
+        var getData = JSON.parse(sessionStorage.getItem('userData') || '{}');
+        const responseUsers = await fetchUserById(getData.id);
         const loggedInUser = responseUsers.data.find((u: any) => u.email === user.email);
         setUser(loggedInUser);
 
         const responseTweets = await fetchTweets();
-        setTweets(responseTweets.data.filter((tweet: any) => tweet.userId === loggedInUser.id));
+        setTweets(responseTweets.filter((tweet: any) => tweet.userId === loggedInUser.id));
 
         const responseReplies = await fetchReplies();
-        setReplies(responseReplies.data.filter((reply: any) => reply.userId === loggedInUser.id));
+        setReplies(responseReplies.filter((reply: any) => reply.userId === loggedInUser.id));
 
         const responseLikes = await fetchLikes();
         setLikes(responseLikes.data.filter((like: any) => like.userId === loggedInUser.id));
@@ -94,4 +96,4 @@ const User: React.FC = () => {
   );
 };
 
-export default User;
+export default Profile;

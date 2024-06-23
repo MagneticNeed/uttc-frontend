@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTweets, fetchReplies, createReply, createLike, deleteLike } from '../api';
+import { TweetType, ReplyType } from './PostType';
 
 const PostList: React.FC = () => {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [tweets, setTweets] = useState<TweetType[]>([]);
+  const [replies, setReplies] = useState<ReplyType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isReplyPopupOpen, setReplyPopupOpen] = useState<boolean>(false);
   const [currentReplyPost, setCurrentReplyPost] = useState<any>(null);
@@ -12,19 +14,23 @@ const PostList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [tweetResponse, replyResponse] = await Promise.all([fetchTweets(), fetchReplies()]);
-        const allPosts = [...tweetResponse.data, ...replyResponse.data].sort(
-          (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setPosts(allPosts);
+        const tweetResponse = await fetchTweets();
+        const replyResponse = await fetchReplies();
 
-        const initialLikes: { [key: string]: boolean } = {};
-        allPosts.forEach((post: any) => {
-          initialLikes[post.id] = post.liked;
-        });
-        setLikes(initialLikes);
+        // APIレスポンスが配列であることを確認
+        if (Array.isArray(tweetResponse)) {
+          setTweets(tweetResponse);
+        } else {
+          console.error('Tweet response is not an array');
+        }
+
+        if (Array.isArray(replyResponse)) {
+          setReplies(replyResponse);
+        } else {
+          console.error('Reply response is not an array');
+        }
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -84,24 +90,45 @@ const PostList: React.FC = () => {
 
   return (
     <div className="App-content">
-      {posts.map((post) => (
-        <div className={`post-card ${post.parentId ? 'reply-card' : ''}`} key={post.id}>
+      <h2>Tweets</h2>
+      {tweets.map((tweet) => (
+        <div className="post-card" key={tweet.id}>
           <div className="post-card-header">
-            <span>{post.user?.name}</span>
+            <span>{tweet.posted_by}</span>
           </div>
           <div className="post-card-body">
-            <p>{post.content}</p>
+            <p>{tweet.content}</p>
           </div>
           <div className="post-card-footer">
-            <button className="reply-button" onClick={() => handleReply(post)}>Reply</button>
+            <button className="reply-button" onClick={() => handleReply(tweet)}>Reply</button>
             <button
-              className={`like-button ${likes[post.id] ? 'on' : ''}`}
-              onClick={() => handleLike(post.id)}
+              className={`like-button ${likes[tweet.id] ? 'on' : ''}`}
+              onClick={() => handleLike(tweet.id)}
             >
               Like
             </button>
-            {post.parentId && (
-              <a href={`/posts/${post.parentId}`} className="reply-link">View Parent</a>
+          </div>
+        </div>
+      ))}
+      <h2>Replies</h2>
+      {replies.map((reply) => (
+        <div className="reply-card" key={reply.id}>
+          <div className="post-card-header">
+            <span>{reply.posted_by}</span>
+          </div>
+          <div className="post-card-body">
+            <p>{reply.content}</p>
+          </div>
+          <div className="post-card-footer">
+            <button className="reply-button" onClick={() => handleReply(reply)}>Reply</button>
+            <button
+              className={`like-button ${likes[reply.id] ? 'on' : ''}`}
+              onClick={() => handleLike(reply.id)}
+            >
+              Like
+            </button>
+            {reply.parent_id && (
+              <a href={`/posts/${reply.parent_id}`} className="reply-link">View Parent</a>
             )}
           </div>
         </div>
@@ -110,7 +137,7 @@ const PostList: React.FC = () => {
         <div className="post-popup">
           <div className="post-popup-content">
             <button className="close-button" onClick={() => setReplyPopupOpen(false)}>×</button>
-            <h3>{currentReplyPost?.user?.name}さんへのリプライ</h3>
+            <h3>{currentReplyPost?.posted_by}さんへのリプライ</h3>
             <textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}

@@ -12,6 +12,9 @@ const Logout: React.FC<{ onLogout: () => void; className?: string }> = ({ onLogo
     }
   };
 
+  // sessionstorageからユーザー情報を削除する
+  sessionStorage.removeItem('userData');
+
   return (
     <button className={className} onClick={handleLogout}>
       Log Out

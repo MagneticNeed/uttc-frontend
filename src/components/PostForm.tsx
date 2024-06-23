@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { createTweet } from '../api';
+import { getData, UserType } from './UserType';
 
-const PostForm: React.FC<{ onPost: () => void }> = ({ onPost }) => {
+interface PostFormProps {
+  onPost: () => void;
+}
+
+const PostForm: React.FC<PostFormProps> = ({ onPost }) => {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
 
@@ -12,12 +17,15 @@ const PostForm: React.FC<{ onPost: () => void }> = ({ onPost }) => {
     }
 
     try {
-      await createTweet({ content });
+      const userData: UserType = getData();
+      console.log('Creating post:', content, userData.id);
+      await createTweet({ content, posted_by: userData.id });
       setContent('');
       setError('');
       onPost();
     } catch (error) {
       console.error('Error creating post:', error);
+      console.error('sessionStorage content:', sessionStorage.getItem('userData'));
     }
   };
 
