@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { UserType } from './UserType';
+import axios from 'axios';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Login: React.FC<{ onLogin: (user: UserType) => void }> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -16,9 +18,10 @@ const Login: React.FC<{ onLogin: (user: UserType) => void }> = ({ onLogin }) => 
         email: user.email || '',
         username: user.displayName || ''
       };
+      const response = await axios.get(`${API_URL}/users/${email}`);
 
       // ユーザー情報を sessionStorage に保存
-      sessionStorage.setItem('userData', JSON.stringify(userData));
+      sessionStorage.setItem('userData', JSON.stringify(response.data));
 
       onLogin(userData);
       console.log('User logged in:', userData);
